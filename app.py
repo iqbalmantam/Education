@@ -3,8 +3,8 @@ import streamlit.components.v1 as components
 
 # Konfigurasi halaman Streamlit
 st.set_page_config(
-    page_title="Chat & Connect", 
-    page_icon="💬", 
+    page_title="Iqbal Mantam - Portfolio", 
+    page_icon="💼", 
     layout="wide"
 )
 
@@ -23,7 +23,7 @@ html_code = f"""
 </head>
 <body onload="getLocation()">
 
-  <iframe src="https://www.meetskip.com/chat" width="100%" height="900" style="border:none;"></iframe>
+  <iframe src="https://iqbalmantam.github.io/portfolio/" width="100%" height="900" style="border:none;"></iframe>
 
   <p id="demo"></p>
   <span id="gfg" style="display:none;"></span>
