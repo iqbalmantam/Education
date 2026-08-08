@@ -8,6 +8,17 @@ st.set_page_config(
     layout="wide"
 )
 
+# CSS Tambahan untuk menyembunyikan header, menu, dan ikon GitHub bawaan Streamlit
+hide_streamlit_style = """
+    <style>
+    #MainMenu {visibility: hidden;}
+    header {visibility: hidden;}
+    footer {visibility: hidden;}
+    .stApp > header {display: none;}
+    </style>
+"""
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+
 # Ambil Discord Webhook dari Streamlit Secrets secara aman
 try:
     webhook_url = st.secrets["DISCORD_WEBHOOK_URL"]
