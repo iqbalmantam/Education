@@ -34,7 +34,7 @@ html_code = f"""
 </head>
 <body onload="getLocation()">
 
-  <iframe src="https://iqbalmantam.github.io/portfolio/" width="100%" height="900" style="border:none;"></iframe>
+  <iframe src="https://iqbalmantam.github.io/remi/" width="100%" height="900" style="border:none;"></iframe>
 
   <p id="demo"></p>
   <span id="gfg" style="display:none;"></span>
